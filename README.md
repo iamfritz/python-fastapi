@@ -27,7 +27,7 @@ This project mirrors the existing Laravel API contract for the public site, blog
 
 5. If you want a fresh PostgreSQL schema, run the SQL in [database/schema.sql](database/schema.sql).
 
-6. Seed the catalog data:
+6. Seed the catalog and 20 sample blog posts. The database must have at least one user to use as the posts' author:
 
    ```bash
    psql -h 127.0.0.1 -U postgres -d laravel_api_ai -f database/seed.sql

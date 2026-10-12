@@ -154,14 +154,14 @@ async def shutdown_event() -> None:
 @app.get("/api/site")
 async def site() -> dict:
     return {
-        "name": "Laravel AI",
-        "tagline": "Build faster with a Laravel API and a modern Next.js frontend.",
+        "name": "Python FastAPI + ReactJs",
+        "tagline": "Build faster with a Python FastAPI and a modern Next.js frontend.",
         "hero": {
             "title": "Launch smarter digital experiences.",
             "subtitle": "A clean architecture for modern web products, content sites, and business dashboards.",
         },
         "features": [
-            "Laravel API foundation",
+            "PythonAPI foundation",
             "Next.js user experience",
             "Content-driven blog pages",
             "Product catalog management",
@@ -443,10 +443,12 @@ async def products_admin(user: dict = Depends(require_roles("admin", "editor")))
             "id": row["id"],
             "title": row["title"],
             "slug": row["slug"],
+            "description": row["description"],
             "sku": row["sku"],
             "price": float(row["price"] or 0),
             "status": row["status"],
             "image": row["image"],
+            "category_id": row["category_id"],
             "category": {
                 "id": row["category_id"],
                 "name": row["category_name"],
@@ -559,6 +561,93 @@ async def delete_product(product_id: int, user: dict = Depends(require_roles("ad
     return {"message": "Product deleted successfully"}
 
 
+@app.get("/api/admin/settings")
+async def get_admin_settings() -> dict:
+    row = await fetch_one("SELECT * FROM site_settings ORDER BY id ASC LIMIT 1")
+    if not row:
+        return {
+            "site_name": "Laravel AI",
+            "site_title": "Laravel AI FastAPI",
+            "tagline": "Launch smarter digital experiences.",
+            "logo_url": "",
+            "favicon_url": "",
+            "primary_color": "#22d3ee",
+            "secondary_color": "#0f172a",
+            "contact_email": "hello@laravelai.dev",
+            "contact_phone": "+1 555 013 1900",
+        }
+    return {
+        "site_name": row.get("site_name", "Laravel AI"),
+        "site_title": row.get("site_title", "Laravel AI FastAPI"),
+        "tagline": row.get("tagline"),
+        "logo_url": row.get("logo_url"),
+        "favicon_url": row.get("favicon_url"),
+        "primary_color": row.get("primary_color", "#22d3ee"),
+        "secondary_color": row.get("secondary_color", "#0f172a"),
+        "contact_email": row.get("contact_email"),
+        "contact_phone": row.get("contact_phone"),
+    }
+
+
+@app.put("/api/admin/settings")
+async def save_admin_settings(request: Request, user: dict = Depends(require_roles("admin", "editor"))) -> dict:
+    payload = await request.json()
+    current = await fetch_one("SELECT * FROM site_settings ORDER BY id ASC LIMIT 1")
+    if current:
+        row = await fetch_one(
+            """
+            UPDATE site_settings
+            SET site_name = $1,
+                site_title = $2,
+                tagline = $3,
+                logo_url = $4,
+                favicon_url = $5,
+                primary_color = $6,
+                secondary_color = $7,
+                contact_email = $8,
+                contact_phone = $9,
+                updated_at = NOW()
+            WHERE id = $10
+            RETURNING *
+            """,
+            (
+                payload.get("site_name", current["site_name"]),
+                payload.get("site_title", current["site_title"]),
+                payload.get("tagline", current.get("tagline")),
+                payload.get("logo_url", current.get("logo_url")),
+                payload.get("favicon_url", current.get("favicon_url")),
+                payload.get("primary_color", current["primary_color"]),
+                payload.get("secondary_color", current["secondary_color"]),
+                payload.get("contact_email", current.get("contact_email")),
+                payload.get("contact_phone", current.get("contact_phone")),
+                current["id"],
+            ),
+        )
+    else:
+        row = await fetch_one(
+            """
+            INSERT INTO site_settings (
+                site_name, site_title, tagline, logo_url, favicon_url,
+                primary_color, secondary_color, contact_email, contact_phone, created_at, updated_at
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW())
+            RETURNING *
+            """,
+            (
+                payload.get("site_name", "Laravel AI"),
+                payload.get("site_title", "Laravel AI FastAPI"),
+                payload.get("tagline"),
+                payload.get("logo_url"),
+                payload.get("favicon_url"),
+                payload.get("primary_color", "#22d3ee"),
+                payload.get("secondary_color", "#0f172a"),
+                payload.get("contact_email"),
+                payload.get("contact_phone"),
+            ),
+        )
+    return await get_admin_settings()
+
+
 @app.post("/api/register")
 async def register(request: Request) -> dict:
     payload = await request.json()
@@ -632,6 +721,112 @@ async def posts(user: dict = Depends(require_roles("admin", "editor"))) -> List[
         }
         for row in rows
     ]
+
+
+@app.get("/api/posts-admin")
+async def posts_admin(user: dict = Depends(require_roles("admin", "editor"))) -> List[dict]:
+    rows = await fetch_all(
+        """
+        SELECT bp.*, u.name AS author_name
+        FROM blog_posts bp
+        LEFT JOIN users u ON u.id = bp.user_id
+        ORDER BY bp.id DESC
+        """
+    )
+    return [
+        {
+            "id": row["id"],
+            "title": row["title"],
+            "slug": row["slug"],
+            "excerpt": row["excerpt"],
+            "content": row["content"],
+            "photo": row["photo"],
+            "category_id": row["category_id"],
+            "status": row["status"],
+            "author": row["author_name"],
+            "created_at": row["created_at"],
+        }
+        for row in rows
+    ]
+
+
+@app.post("/api/posts-admin")
+async def create_post_admin(request: Request, user: dict = Depends(require_roles("admin", "editor"))) -> dict:
+    payload = await request.json()
+    title = payload.get("title")
+    slug = payload.get("slug")
+    content = payload.get("content")
+    if not title or not slug or not content:
+        raise HTTPException(status_code=400, detail={"message": "Title, slug and content are required"})
+    if await fetch_one("SELECT id FROM blog_posts WHERE slug = $1 LIMIT 1", (slug,)):
+        raise HTTPException(status_code=409, detail={"message": "Slug already exists"})
+
+    created = await fetch_one(
+        """
+        INSERT INTO blog_posts (user_id, category_id, title, slug, excerpt, content, photo, status, created_at, updated_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
+        RETURNING *
+        """,
+        (
+            user["id"],
+            payload.get("category_id"),
+            title,
+            slug,
+            payload.get("excerpt", ""),
+            content,
+            payload.get("photo"),
+            payload.get("status", "draft"),
+        ),
+    )
+    return created
+
+
+@app.put("/api/posts-admin/{post_id}")
+async def update_post_admin(post_id: int, request: Request, user: dict = Depends(require_roles("admin", "editor"))) -> dict:
+    payload = await request.json()
+    current = await fetch_one("SELECT * FROM blog_posts WHERE id = $1 LIMIT 1", (post_id,))
+    if not current:
+        raise HTTPException(status_code=404, detail={"message": "Blog post not found"})
+
+    next_slug = payload.get("slug") or current["slug"]
+    if await fetch_one("SELECT id FROM blog_posts WHERE slug = $1 AND id != $2 LIMIT 1", (next_slug, post_id)):
+        raise HTTPException(status_code=409, detail={"message": "Slug already exists"})
+
+    updated = await fetch_one(
+        """
+        UPDATE blog_posts
+        SET category_id = $1,
+            title = $2,
+            slug = $3,
+            excerpt = $4,
+            content = $5,
+            photo = $6,
+            status = $7,
+            updated_at = NOW()
+        WHERE id = $8
+        RETURNING *
+        """,
+        (
+            payload.get("category_id", current["category_id"]),
+            payload.get("title", current["title"]),
+            next_slug,
+            payload.get("excerpt", current.get("excerpt", "")),
+            payload.get("content", current["content"]),
+            payload.get("photo", current.get("photo")),
+            payload.get("status", current["status"]),
+            post_id,
+        ),
+    )
+    return updated
+
+
+@app.delete("/api/posts-admin/{post_id}")
+async def delete_post_admin(post_id: int, user: dict = Depends(require_roles("admin"))) -> dict:
+    current = await fetch_one("SELECT * FROM blog_posts WHERE id = $1 LIMIT 1", (post_id,))
+    if not current:
+        raise HTTPException(status_code=404, detail={"message": "Blog post not found"})
+    await execute("DELETE FROM blog_posts WHERE id = $1", (post_id,))
+    return {"message": "Blog post deleted successfully"}
 
 
 @app.post("/api/posts")

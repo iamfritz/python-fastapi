@@ -64,3 +64,18 @@ CREATE TABLE IF NOT EXISTS products (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS site_settings (
+    id SERIAL PRIMARY KEY,
+    site_name VARCHAR(255) NOT NULL DEFAULT 'Laravel AI',
+    site_title VARCHAR(255) NOT NULL DEFAULT 'Laravel AI FastAPI',
+    tagline TEXT NULL,
+    logo_url VARCHAR(255) NULL,
+    favicon_url VARCHAR(255) NULL,
+    primary_color VARCHAR(20) NOT NULL DEFAULT '#22d3ee',
+    secondary_color VARCHAR(20) NOT NULL DEFAULT '#0f172a',
+    contact_email VARCHAR(255) NULL,
+    contact_phone VARCHAR(255) NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

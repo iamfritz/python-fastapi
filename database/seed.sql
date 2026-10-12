@@ -362,4 +362,202 @@ SET user_id = EXCLUDED.user_id,
     status = EXCLUDED.status,
     updated_at = NOW();
 
+WITH seed_posts (title, slug, category_slug, excerpt, content, photo) AS (
+    VALUES
+        (
+            'Building a Calmer Digital Workspace',
+            'building-a-calmer-digital-workspace',
+            'office',
+            'Small changes to your desk and digital habits can make focused work feel more natural.',
+            'A productive workspace is not about filling a desk with more gear. Start by keeping only the tools you use every day within reach, then give occasional items a consistent home. Pair that simple layout with a short reset at the end of each work session. A clear desk and a tidy desktop reduce friction the next time you sit down, helping you spend more energy on meaningful work.',
+            'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80'
+        ),
+        (
+            'A Practical Guide to Better Headphone Habits',
+            'a-practical-guide-to-better-headphone-habits',
+            'electronics',
+            'Get more from your headphones with comfortable listening levels, thoughtful care, and a few useful settings.',
+            'Good listening starts with a comfortable volume. Keep the level low enough to hear nearby conversation when needed, and take regular breaks during long sessions. Store headphones in a case when you travel, wipe the ear cushions gently, and check that your device is using the right audio profile. These small habits protect both your equipment and your enjoyment of music, calls, and podcasts.',
+            'https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=1200&q=80'
+        ),
+        (
+            'Make Your Morning Coffee a Mindful Ritual',
+            'make-your-morning-coffee-a-mindful-ritual',
+            'home',
+            'A slower coffee routine can create a welcome pause before a busy day begins.',
+            'You do not need elaborate equipment to make a morning cup feel special. Choose a favorite mug, prepare your ingredients the night before, and give the brewing process your attention for a few minutes. Notice the aroma and warmth rather than reaching for your phone. A repeatable ritual adds a little calm to the start of the day and turns an everyday drink into a moment to reset.',
+            'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1200&q=80'
+        ),
+        (
+            'Pack Light for a More Comfortable Weekend Trip',
+            'pack-light-for-a-more-comfortable-weekend-trip',
+            'lifestyle',
+            'A flexible packing list makes short trips easier without leaving the essentials behind.',
+            'Begin with the activities on your itinerary, then pack pieces that work in more than one setting. Keep chargers and personal essentials together in a small pouch, and leave a little room for items you may bring home. A comfortable bag with balanced weight makes walking through stations and airports less tiring. Before leaving, check the weather and remove anything that does not serve a clear purpose.',
+            'https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?auto=format&fit=crop&w=1200&q=80'
+        ),
+        (
+            'Turn a Small Desk into a More Useful Workspace',
+            'turn-a-small-desk-into-a-more-useful-workspace',
+            'office',
+            'Thoughtful placement and vertical storage can help a compact work area feel open and capable.',
+            'A small desk works best when its surface stays available for the task at hand. Raise a laptop to a comfortable viewing height, route charging cables along the back edge, and use a compact organizer for stationery. Keep a lamp where it lights the work without shining into your eyes. When the day is done, return each item to its place so the area can serve other needs too.',
+            'https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1200&q=80'
+        ),
+        (
+            'Create a Simple Smart Home Routine',
+            'create-a-simple-smart-home-routine',
+            'home',
+            'Start with one useful automation and build a connected home around real daily needs.',
+            'Smart home technology is most helpful when it quietly handles a repeated task. Try a lights-off routine for bedtime or a reminder to check the front door when leaving. Name devices clearly, keep controls easy for everyone in the household, and review permissions when adding a new service. Begin with one dependable routine before expanding, and keep a manual option available for essential devices.',
+            'https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=1200&q=80'
+        ),
+        (
+            'Capture Better Travel Photos with Less Gear',
+            'capture-better-travel-photos-with-less-gear',
+            'electronics',
+            'Good light, a steady hand, and a clear point of interest matter more than a packed camera bag.',
+            'Before taking a travel photo, pause and decide what caught your attention. Move closer when safe, look for soft natural light, and keep the horizon level. A few deliberate frames often tell a better story than dozens of rushed shots. Carry only the camera and accessories you know how to use, and take time to enjoy the place without looking through a screen.',
+            'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=1200&q=80'
+        ),
+        (
+            'Keep Everyday Carry Organized and Lightweight',
+            'keep-everyday-carry-organized-and-lightweight',
+            'accessories',
+            'A small review of what you carry can make commutes and errands feel noticeably easier.',
+            'Empty your bag once a week and sort items into daily essentials, occasional tools, and things that can stay at home. Use one pouch for small items that are easy to lose, and put heavier objects close to your back. Refill water and charge devices before heading out. A lighter, predictable setup saves time when you need to find something quickly.',
+            'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=1200&q=80'
+        ),
+        (
+            'Choose a Keyboard Setup That Supports Your Workflow',
+            'choose-a-keyboard-setup-that-supports-your-workflow',
+            'electronics',
+            'The right keyboard layout is the one that feels comfortable and fits the way you work.',
+            'Consider the tasks you do most before choosing a keyboard. A compact layout can free up desk space, while dedicated navigation keys may be useful for editing and spreadsheets. Adjust the keyboard so your shoulders can relax and your wrists remain neutral. Try a few days of regular use before changing multiple settings at once, then keep the setup that feels sustainable.',
+            'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=1200&q=80'
+        ),
+        (
+            'Make Your Home Easier to Keep Tidy',
+            'make-your-home-easier-to-keep-tidy',
+            'home',
+            'Simple storage choices and a short daily reset can prevent clutter from building up.',
+            'Give frequently used objects a convenient place near where they are needed. Use open storage for everyday items and closed containers for things that create visual clutter. A five-minute reset in the evening is often easier than a long cleanup at the weekend. Focus on returning items rather than reorganizing the entire room, and adjust the system if things repeatedly end up elsewhere.',
+            'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1200&q=80'
+        ),
+        (
+            'Build a Walking Break into Your Workday',
+            'build-a-walking-break-into-your-workday',
+            'lifestyle',
+            'Brief movement breaks can refresh attention and make long days at a desk more comfortable.',
+            'Set a gentle reminder to stand, stretch, or take a short walk between focused work sessions. Keep comfortable shoes nearby and choose a route that does not require much planning. A few minutes away from the screen can help you return with a clearer head. Match the length of each break to your schedule and choose a pace that feels restorative rather than rushed.',
+            'https://images.unsplash.com/photo-1516574187841-cb9cc2ca948b?auto=format&fit=crop&w=1200&q=80'
+        ),
+        (
+            'A Better Way to Plan Your Weekly Priorities',
+            'a-better-way-to-plan-your-weekly-priorities',
+            'office',
+            'A short weekly planning session helps separate important work from the daily noise.',
+            'At the start of the week, write down the outcomes that would make the next few days feel successful. Break each outcome into a clear next action and reserve realistic time for it. Leave space for unexpected tasks instead of filling every hour. At the end of each day, review what changed and adjust the plan without treating a busy schedule as a measure of progress.',
+            'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=1200&q=80'
+        ),
+        (
+            'Stay Hydrated Through a Busy Day',
+            'stay-hydrated-through-a-busy-day',
+            'lifestyle',
+            'A reusable bottle and a few routine cues make drinking water easier to remember.',
+            'Keep a reusable bottle where you can see it, and refill it when you take a natural break. Pair a drink of water with existing habits such as arriving at your desk or finishing a meeting. Choose a bottle that is easy to clean and comfortable to carry. Small reminders can help build consistency, but listen to your body and adapt to your activity and surroundings.',
+            'https://images.unsplash.com/photo-1602143407151-7111542de6e8?auto=format&fit=crop&w=1200&q=80'
+        ),
+        (
+            'Improve Video Calls with a Few Easy Adjustments',
+            'improve-video-calls-with-a-few-easy-adjustments',
+            'electronics',
+            'Clear audio, even lighting, and a stable camera make online meetings easier to follow.',
+            'Place your camera close to eye level and face a soft light source when possible. Before a call, check your microphone input and close noisy applications. Keep a glass of water nearby and silence notifications that are not needed. These quick checks reduce distractions for everyone and let you focus on the conversation instead of troubleshooting equipment.',
+            'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80'
+        ),
+        (
+            'Give Your Home Office Better Lighting',
+            'give-your-home-office-better-lighting',
+            'office',
+            'Layered lighting can reduce glare and make a desk more comfortable throughout the day.',
+            'Use daylight when it is available, positioning your screen so windows do not create strong reflections. Add a task light for reading or writing and choose a comfortable brightness for evening work. Avoid placing a bright lamp directly in your line of sight. Adjust the setup as the seasons change, since the amount and direction of daylight shift over the year.',
+            'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80'
+        ),
+        (
+            'Make Room for a More Restful Evening',
+            'make-room-for-a-more-restful-evening',
+            'lifestyle',
+            'A consistent wind-down routine can help create a clearer boundary between work and rest.',
+            'Choose a simple signal that marks the end of the workday, such as closing your laptop and writing down tomorrow’s first task. Lower bright lighting in the evening and set aside a little time for an activity that does not demand constant attention. Keep the routine flexible enough to fit real life. Small, repeatable cues can make it easier to shift into a more restful part of the day.',
+            'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80'
+        ),
+        (
+            'Care for Reusable Bags and Travel Gear',
+            'care-for-reusable-bags-and-travel-gear',
+            'accessories',
+            'A little maintenance keeps everyday bags cleaner, more comfortable, and ready for the next trip.',
+            'Empty bags after each trip and shake out dust before storing them. Follow the care label when cleaning fabric or leather, and let damp items dry fully before they go into a closet. Check straps, zippers, and seams occasionally so small issues can be handled early. Store travel gear in one easy-to-find place and keep a short packing list with it.',
+            'https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?auto=format&fit=crop&w=1200&q=80'
+        ),
+        (
+            'Create a More Focused Listening Environment',
+            'create-a-more-focused-listening-environment',
+            'electronics',
+            'A comfortable listening setup can make music and audio work more enjoyable at home.',
+            'Reduce nearby noise where practical and choose a comfortable listening level before settling in. Keep your audio device charged and place controls within reach so you are not interrupted mid-session. For focused work, use playlists that support the task without competing for attention. For leisure listening, put notifications aside and enjoy an album or podcast from beginning to end.',
+            'https://images.unsplash.com/photo-1545454675-3531b543be5d?auto=format&fit=crop&w=1200&q=80'
+        ),
+        (
+            'Refresh Your Desk at the End of Each Week',
+            'refresh-your-desk-at-the-end-of-each-week',
+            'office',
+            'A quick Friday reset makes it easier to begin the next week with a clear surface and plan.',
+            'Spend a few minutes clearing completed notes, returning supplies, and wiping the desk surface. Review open tasks and choose one clear starting point for the next workday. Charge the devices you rely on and remove cups or dishes. Keep the reset short and repeatable; the aim is to make Monday easier, not to create another large project.',
+            'https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1200&q=80'
+        ),
+        (
+            'Make Small Spaces Feel More Open',
+            'make-small-spaces-feel-more-open',
+            'home',
+            'Clear pathways, useful storage, and a restrained palette can help compact rooms feel welcoming.',
+            'Start by keeping the main walking paths free and choosing furniture that suits the room scale. Use baskets or shelves to gather loose items, and let a few meaningful objects stand out instead of displaying everything. Natural light and reflective surfaces can brighten a space without a major renovation. Make changes gradually and keep the arrangements that make daily routines simpler.',
+            'https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=1200&q=80'
+        )
+)
+INSERT INTO blog_posts (
+    user_id,
+    category_id,
+    title,
+    slug,
+    excerpt,
+    content,
+    photo,
+    status,
+    created_at,
+    updated_at
+)
+SELECT
+    (SELECT id FROM users ORDER BY id LIMIT 1),
+    c.id,
+    p.title,
+    p.slug,
+    p.excerpt,
+    p.content,
+    p.photo,
+    'published',
+    NOW(),
+    NOW()
+FROM seed_posts p
+JOIN categories c ON c.slug = p.category_slug
+ON CONFLICT (slug) DO UPDATE
+SET user_id = EXCLUDED.user_id,
+    category_id = EXCLUDED.category_id,
+    title = EXCLUDED.title,
+    excerpt = EXCLUDED.excerpt,
+    content = EXCLUDED.content,
+    photo = EXCLUDED.photo,
+    status = EXCLUDED.status,
+    updated_at = NOW();
+
 COMMIT;
